@@ -32,9 +32,32 @@ App::uses('Controller', 'Controller');
  * @link http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-	function beforeFilter() {
-		if (isset($this->params['prefix']) && $this->params['prefix'] == 'admin') {
-			$this->layout = 'admin';
-		} 
+	public $components = array (
+		'Session',
+		'Auth' => array(
+			'loginRedirect'=>array('controller'=>'quotes', 'action'=> 'index'),
+			'logoutRedirect'=> array('controller'=>'quotes', 'action'=>'index')
+			)
+		);
+
+
+function beforeFilter(){
+	if(isset($this->params['prefix']) && $this->params['prefix']=='admin'){
+		$this->layout = 'admin';
 	}
+
+	$this->Auth->allow('index','view');
+
+	if($this->Auth->loggedIn()){
+		$this->set('me','connecté'); // crée une variable 'me' dans ma view qui sera égale soit a 'connecté' ou 'déconnecté'
+	}else{
+		$this->set('me',array('id'=>0, 'username'=>'visiteur non connecté'));
+	}
+	}
+
+
+	public function isAuthorized($user){
+		return false; // isAuthorized est une fonction cakephp, on la met en false toujours pour autoriser l'accès à RIEN pour les utilisateurs, après on modifie l'accès petit à petit
+	}
+
 }
